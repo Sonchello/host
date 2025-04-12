@@ -1,0 +1,924 @@
+@import 'leaflet/dist/leaflet.css';
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css');
+@import url('https://fonts.cdnfonts.com/css/gotem');
+
+html,
+body {
+  margin: 0;
+  background-color: #222629; /* Фон страницы */
+  font-family: 'brandon-grotesque', 'Avenir Next', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  font-weight: 500;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.leaflet-popup-content {
+  min-width: 400px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: #FFFFFF;
+}
+
+.leaflet-popup-content h3 {
+  margin: 0 0 10px 0;
+  color: #FFFFFF;
+  font-family: 'brandon-grotesque', 'Avenir Next', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.leaflet-popup-content p {
+  margin: 5px 0;
+  color: #FFFFFF;
+}
+
+.leaflet-popup-content button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: transparent;
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.leaflet-popup-content button:hover {
+  background: #FFFFFF;
+  color: #000000;
+}
+
+.custom-marker {
+  background: none;
+  border: none;
+}
+
+.custom-marker-wrapper {
+  position: relative;
+}
+
+.custom-marker-icon {
+  width: 128px !important;
+  height: 128px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  object-fit: contain !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  image-rendering: -webkit-optimize-contrast !important;
+  image-rendering: crisp-edges !important;
+  -ms-interpolation-mode: nearest-neighbor !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+.custom-marker-icon img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  image-rendering: -webkit-optimize-contrast !important;
+  image-rendering: crisp-edges !important;
+  -ms-interpolation-mode: nearest-neighbor !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+.marker-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+  transform: rotate(45deg);
+  font-size: 16px;
+  text-align: center;
+}
+
+.marker-pin {
+  width: 2px;
+  height: 12px;
+  background: #fff;
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  margin-left: -1px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.custom-marker-cluster {
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid #FFFFFF;
+  border-radius: 50%;
+  color: #FFFFFF;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 40px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.custom-marker-cluster span {
+  line-height: 1;
+}
+
+.map {
+  position: relative;
+  z-index: 1;
+}
+
+/* Стили для кнопок управления */
+.custom-zoom-control {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.95);
+  padding: 10px;
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.custom-zoom-control button {
+  width: 45px;
+  height: 45px;
+  background: transparent;
+  border: 2px solid #FFFFFF;
+  border-radius: 50%;
+  color: #FFFFFF;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.custom-zoom-control button:hover {
+  background: #FFFFFF;
+  color: #000000;
+  transform: scale(1.1);
+}
+
+/* Стиль для кнопки создания запроса */
+.create-request-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  padding: 15px 30px;
+  background: rgba(0, 0, 0, 0.95);
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
+  border-radius: 30px;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.create-request-button:hover {
+  background: #FFFFFF;
+  color: #000000;
+  transform: translateY(-2px);
+}
+
+/* Стили для попапа формы */
+.request-form-popup {
+  background: #FFFFFF !important;
+  padding: 40px !important;
+  border-radius: 15px !important;
+  color: #000000 !important;
+  min-width: 600px !important;
+  border: 2px solid #000000 !important;
+}
+
+.request-form-popup h3 {
+  color: #000000 !important;
+  font-size: 32px !important;
+  margin-bottom: 30px !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  border-bottom: 2px solid #000000 !important;
+  padding-bottom: 15px !important;
+  font-weight: 600 !important;
+}
+
+.form-group {
+  margin-bottom: 25px !important;
+}
+
+.form-group label {
+  display: block !important;
+  margin-bottom: 12px !important;
+  color: #000000 !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.form-group textarea {
+  width: 100% !important;
+  min-height: 150px !important;
+  padding: 15px !important;
+  background: #FFFFFF !important;
+  border: 2px solid #000000 !important;
+  border-radius: 8px !important;
+  color: #000000 !important;
+  font-size: 18px !important;
+  resize: vertical !important;
+  transition: all 0.3s ease !important;
+}
+
+.form-group textarea:focus {
+  outline: none !important;
+  border-color: #000000 !important;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3) !important;
+}
+
+.form-group select {
+  width: 100% !important;
+  padding: 15px !important;
+  background: #FFFFFF !important;
+  border: 2px solid #000000 !important;
+  border-radius: 8px !important;
+  color: #000000 !important;
+  font-size: 18px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.form-group select:focus {
+  outline: none !important;
+  border-color: #000000 !important;
+}
+
+.form-group select option {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  padding: 15px !important;
+  font-size: 18px !important;
+}
+
+/* Стили для кнопок срочности */
+.urgency-buttons {
+  display: flex !important;
+  gap: 15px !important;
+  margin: 15px 0 !important;
+}
+
+.urgency-button {
+  flex: 1 !important;
+  padding: 15px !important;
+  border: 2px solid #000000 !important;
+  border-radius: 8px !important;
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  font-size: 18px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  font-weight: 600 !important;
+}
+
+.urgency-button:hover {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+.urgency-button.active {
+  background: #000000 !important;
+  color: #FFFFFF !important;
+}
+
+/* Стили для кнопок формы */
+.form-buttons {
+  display: flex !important;
+  gap: 15px !important;
+  margin-top: 30px !important;
+}
+
+.submit-button, .cancel-button {
+  flex: 1 !important;
+  padding: 15px !important;
+  border: 2px solid #000000 !important;
+  border-radius: 8px !important;
+  font-size: 18px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  font-weight: 600 !important;
+}
+
+.submit-button {
+  background: #000000 !important;
+  color: #FFFFFF !important;
+}
+
+.submit-button:hover {
+  background: #333333 !important;
+}
+
+.cancel-button {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+}
+
+.cancel-button:hover {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Стили для маркера местоположения пользователя */
+.user-location-marker {
+  width: 64px !important;
+  height: 64px !important;
+  background: rgba(255, 0, 0, 0.15);
+  border: 2px solid #FF0000;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+  animation: pulse 2s infinite;
+}
+
+.user-marker-inner {
+  width: 32px;
+  height: 32px;
+  background: #FF0000;
+  border: 2px solid #FFFFFF;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.user-location-popup {
+  padding: 8px 16px;
+  background: rgba(255, 0, 0, 0.9);
+  color: #FFFFFF;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.3);
+}
+
+/* Стили для попапа запроса */
+.request-popup {
+  background: #FFFFFF !important;
+  padding: 40px !important;
+  border-radius: 15px !important;
+  color: #000000 !important;
+  min-width: 400px !important;
+  border: 2px solid #000000 !important;
+}
+
+.request-popup h3 {
+  color: #000000 !important;
+  font-size: 24px !important;
+  margin-bottom: 30px !important;
+  text-align: left !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  border-bottom: 2px solid #000000 !important;
+  padding-bottom: 15px !important;
+  font-weight: 600 !important;
+}
+
+.request-popup .category-info {
+  background: #FFFFFF !important;
+  padding: 15px !important;
+  border-radius: 8px !important;
+  border: 2px solid #000000 !important;
+  margin: 15px 0 !important;
+  color: #000000 !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+}
+
+.request-popup .description {
+  background: #FFFFFF !important;
+  padding: 15px !important;
+  border-radius: 8px !important;
+  margin: 15px 0 !important;
+  border: 2px solid #000000 !important;
+}
+
+.request-popup .description strong {
+  color: #000000 !important;
+  display: block !important;
+  margin-bottom: 10px !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+}
+
+.request-popup .description p {
+  color: #000000 !important;
+  margin: 0 !important;
+  line-height: 1.5 !important;
+  font-size: 16px !important;
+}
+
+.request-popup .user-info {
+  background: #FFFFFF !important;
+  padding: 15px !important;
+  border-radius: 8px !important;
+  border: 2px solid #000000 !important;
+  color: #000000 !important;
+  margin: 15px 0 !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+}
+
+.request-popup .status {
+  display: inline-block !important;
+  padding: 10px 20px !important;
+  border-radius: 8px !important;
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  margin: 15px 0 !important;
+  font-size: 16px !important;
+  border: 2px solid #000000 !important;
+  font-weight: 500 !important;
+}
+
+.request-popup .urgency {
+  display: inline-block !important;
+  padding: 10px 20px !important;
+  border-radius: 8px !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+  margin: 15px 0 !important;
+  width: 100% !important;
+  text-align: center !important;
+  font-size: 16px !important;
+  border: 2px solid #000000 !important;
+}
+
+.request-popup .urgency.low {
+  background: #FFFFFF !important;
+  border-color: #28a745 !important;
+  color: #28a745 !important;
+}
+
+.request-popup .urgency.medium {
+  background: #FFFFFF !important;
+  border-color: #ffc107 !important;
+  color: #ffc107 !important;
+}
+
+.request-popup .urgency.high {
+  background: #FFFFFF !important;
+  border-color: #dc3545 !important;
+  color: #dc3545 !important;
+}
+
+.request-popup .button-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin-top: 20px !important;
+}
+
+.request-popup .help-button,
+.request-popup .chat-button,
+.request-popup .complete-help-button,
+.request-popup .cancel-help-button {
+  width: 100% !important;
+  padding: 15px !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  border: none !important;
+  color: #FFFFFF !important;
+}
+
+.request-popup .help-button {
+  background: #000000 !important;
+}
+
+.request-popup .chat-button {
+  width: 100% !important;
+  padding: 15px !important;
+  margin-top: 10px !important;
+  background: #2196F3 !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.request-popup .chat-button:hover {
+  background: #1976D2 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3) !important;
+}
+
+.request-popup .complete-help-button {
+  width: 100% !important;
+  padding: 15px !important;
+  margin-top: 15px !important;
+  background: #28a745 !important;
+  color: #FFFFFF !important;
+  border: 2px solid #28a745 !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.request-popup .complete-help-button:hover {
+  background: #218838 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2) !important;
+}
+
+.request-popup .cancel-help-button {
+  width: 100% !important;
+  padding: 15px !important;
+  margin-top: 15px !important;
+  background: #dc3545 !important;
+  color: #FFFFFF !important;
+  border: 2px solid #dc3545 !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.request-popup .cancel-help-button:hover {
+  background: #c82333 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2) !important;
+}
+
+.request-popup .completion-status {
+  text-align: center !important;
+  padding: 15px !important;
+  margin-top: 10px !important;
+  background: #E8F5E9 !important;
+  color: #2E7D32 !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  border: 2px solid #2E7D32 !important;
+}
+
+.request-popup .user-info div {
+  margin-top: 10px !important;
+}
+
+.request-popup .category-info {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 20px !important;
+  gap: 10px !important;
+}
+
+.request-popup .status,
+.request-popup .urgency {
+  flex: 1 !important;
+  text-align: center !important;
+  padding: 10px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+/* Обновляем стили для контейнера попапа Leaflet */
+.leaflet-popup-content-wrapper {
+  background: #FFFFFF !important;
+  border-radius: 15px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  padding: 0 !important;
+  border: 2px solid #000000 !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+}
+
+.leaflet-popup-tip {
+  background: #FFFFFF !important;
+  border: 2px solid #000000 !important;
+}
+
+/* Стили для контента попапа */
+.request-popup {
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+}
+
+.request-popup h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+  border-bottom: 2px solid #86C232;
+  padding-bottom: 15px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'brandon-grotesque', 'Avenir Next', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  font-weight: 500;
+}
+
+.request-popup .category-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0;
+  font-weight: bold;
+  color: #444;
+  font-size: 16px;
+}
+
+.request-popup .description {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+  margin: 15px 0;
+  border: 1px solid #e9ecef;
+}
+
+.request-popup .description strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-size: 16px;
+}
+
+.request-popup .description p {
+  margin: 0;
+  color: #444;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.request-popup .user-info {
+  font-style: italic;
+  color: #555;
+  margin: 15px 0;
+  font-size: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.request-popup .status {
+  display: inline-block;
+  padding: 8px 15px;
+  border-radius: 6px;
+  font-weight: bold;
+  margin: 15px 0;
+  background-color: #e9ecef;
+  color: #444;
+  font-size: 15px;
+}
+
+.request-popup .urgency {
+  display: inline-block;
+  padding: 8px 15px;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  margin: 15px 0;
+  font-size: 15px;
+  width: 100%;
+  text-align: center;
+}
+
+.request-popup .urgency.low {
+  background-color: #28a745;
+}
+
+.request-popup .urgency.medium {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.request-popup .urgency.high {
+  background-color: #dc3545;
+}
+
+.request-popup .help-button {
+  width: 100% !important;
+  padding: 15px !important;
+  margin-top: 15px !important;
+  background: #000000 !important;
+  color: #FFFFFF !important;
+  border: 2px solid #000000 !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.request-popup .help-button:hover {
+  background: #333333 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+}
+
+/* Обновляем стили для маркера пользователя */
+.leaflet-marker-icon {
+  background: none;
+  border: none;
+  transition: transform 0.3s ease;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 128px !important;
+  height: 128px !important;
+  image-rendering: -webkit-optimize-contrast !important;
+  image-rendering: crisp-edges !important;
+  -ms-interpolation-mode: nearest-neighbor !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+.leaflet-marker-icon:hover {
+  transform: scale(1.2);
+  z-index: 1000 !important;
+}
+
+.request-status.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.request-status.completed {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.request-popup .delete-button {
+  width: 100%;
+  padding: 12px;
+  background: #dc3545;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 16px;
+  margin-top: 20px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: 'brandon-grotesque', 'Avenir Next', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+}
+
+.request-popup .delete-button:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.request-popup .delete-button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.helpers-info {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+.responses-count {
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 8px;
+}
+
+.helpers-list {
+  margin-top: 8px;
+}
+
+.helpers-list ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 8px 0 0 0;
+}
+
+.helpers-list li {
+  padding: 4px 8px;
+  margin: 4px 0;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.notifications-button {
+  position: absolute;
+  top: 90px;
+  right: 20px;
+  z-index: 1000;
+  background-color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+}
+
+.notifications-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+}
+
+.notifications-button .notifications-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #dc3545;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  min-width: 18px;
+  text-align: center;
+}
